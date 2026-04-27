@@ -1,0 +1,74 @@
+/* 1. IMPORT MODERN FONT */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* 2. GLOBAL RESET & FULL-SCREEN SETUP */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #020617; /* Dark theme background */
+  color: #f8fafc; /* Light text globally so you don't have to set it everywhere */
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden; /* Absolutely prevents horizontal scrolling */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+/* 3. GLOBAL ANIMATION FOR PAGE TRANSITIONS */
+#root {
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4. GLOBAL BUTTON HOVER EFFECTS */
+button {
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* 5. FOOTER SOCIAL ICON HOVER */
+.social-icon-hover {
+  transition: all 0.3s ease;
+}
+
+.social-icon-hover:hover {
+  background-color: #2563eb !important; /* Blue glow */
+  border-color: #2563eb !important;
+  transform: translateY(-5px); /* Lift up effect */
+  color: white !important;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+}
+
+/* 6. UTILITY CLASS FOR GLASS EFFECTS */
+/* Add className="glass-effect" to any div you want to look like frosted glass */
+.glass-effect {
+  background: rgba(15, 23, 42, 0.7); /* Updated to a dark glass effect to match your theme */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
