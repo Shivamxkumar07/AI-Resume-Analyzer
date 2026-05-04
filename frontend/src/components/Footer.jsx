@@ -14,9 +14,9 @@ const Footer = () => {
         {/* Section 1: Contact Info */}
         <div style={styles.section}>
           <h4 style={styles.sectionTitle}>GET IN TOUCH</h4>
-          <p style={styles.contactItem}>📞 Phone: +91-7859074570</p>
+          <p style={styles.contactItem}>📞 Phone: +91-78XXXXXXXX</p>
           <p style={styles.contactItem}>
-            📧 Email: <a href="mailto:kumarshivam997318@gmail.com" style={styles.footerNavLink}>kumarshivam997318@gmail.com</a>
+            📧 Email: <a href="mailto:kumarshivam997318@gmail.com" style={styles.footerNavLink}>kumarxxxxx@gmail.com</a>
           </p>
           <div style={styles.supportLinks}>
             <a href="#" style={styles.footerNavLink} onClick={(e) => {e.preventDefault(); alert("Feedback coming soon!")}}>Feedback</a>
@@ -49,7 +49,7 @@ const Footer = () => {
       </div>
 
       <div style={styles.copyrightBar}>
-        <p>© 2024 ResumeAI. Created by Shivam Kumar.</p>
+        <p>© 2026 ResumeAI. Created by Team(Shivam, Krishna & Mukul).</p>
       </div>
     </footer>
   );
