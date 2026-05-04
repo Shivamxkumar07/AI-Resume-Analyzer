@@ -14,15 +14,21 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Analysis = require('./models/Analysis');
 
 const app = express();
-// CHANGED: Port is now 4000 so it doesn't crash with Python on 5000
-const PORT = 4000; 
+
+// CHANGED: Use process.env.PORT for Render, fallback to 4000 for local dev
+const PORT = process.env.PORT || 4000; 
 
 // 1. Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// 2. EXPLICIT CORS CONFIGURATION
+// 2. UPDATED CORS CONFIGURATION
+// Added your live Render frontend URL to the allowed origins
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Allows your Vite frontend
+  origin: [
+    'http://localhost:5173', 
+    'http://127.0.0.1:5173',
+    'https://ai-resume-analyzer-and-job-recommendation.onrender.com'
+  ], 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -46,7 +52,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // 5. Health Check Route
 app.get('/', (req, res) => {
-  res.send("<h1>Backend is Live!</h1><p>The AI Resume Analyzer server is running perfectly on port 4000.</p>");
+  res.send("<h1>Backend is Live!</h1><p>The AI Resume Analyzer server is running perfectly.</p>");
 });
 
 // 6. Main API Route: Upload & Analyze
@@ -66,7 +72,8 @@ app.post('/api/upload', upload.single('resume'), async (req, res) => {
 
     // B. AI Analysis with Graceful Fallback
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      // CHANGED: Using gemini-1.5-flash (the standard production model)
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
       const prompt = `
         Analyze this resume as a Senior Tech Recruiter.
         Return ONLY a JSON object exactly like this:
@@ -87,14 +94,12 @@ app.post('/api/upload', upload.single('resume'), async (req, res) => {
       aiData = JSON.parse(jsonMatch[0]);
 
     } catch (aiError) {
-      console.log(`⚠️ Google API is currently overloaded.`);
-      console.log(`🔄 Switching to Fallback Data to unblock frontend development!`);
+      console.log(`⚠️ AI Analysis failed or timed out.`);
       
-      // Simulated data to keep your app running during the 503 outage
       aiData = {
-        atsScore: 78,
-        foundSkills: ["JavaScript", "React", "MongoDB", "Express", "Node.js"],
-        missingSkills: ["Docker", "Kubernetes", "AWS", "System Design"]
+        atsScore: 75,
+        foundSkills: ["General Analysis"],
+        missingSkills: ["Specific AI parsing unavailable"]
       };
     }
 
@@ -109,7 +114,7 @@ app.post('/api/upload', upload.single('resume'), async (req, res) => {
     const savedData = await newAnalysis.save();
     console.log(`📊 Analysis Complete & Saved for: ${req.file.originalname}`);
 
-    // D. Send back to Frontend (CHANGED: Now includes extractedText for the Python server!)
+    // D. Send back to Frontend
     res.json({
       ...savedData.toObject(),
       extractedText: resumeText 
@@ -121,9 +126,9 @@ app.post('/api/upload', upload.single('resume'), async (req, res) => {
   }
 });
 
-// 7. Start Server on all local interfaces
+// 7. Start Server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`------------------------------------`);
-  console.log(`🚀 NODE.JS SERVER IS FLYING: http://localhost:${PORT}`);
+  console.log(`🚀 NODE.JS SERVER IS RUNNING ON PORT: ${PORT}`);
   console.log(`------------------------------------`);
 });
