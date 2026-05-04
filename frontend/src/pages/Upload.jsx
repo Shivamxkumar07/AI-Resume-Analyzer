@@ -15,8 +15,7 @@ const Upload = ({ setAnalysisData }) => {
 
     try {
       // --- STEP 1: Send PDF to Node.js backend for parsing and ATS Score ---
-      // NOTE: Ensure your Node.js server is running on port 4000 to avoid conflicts with Python
-      const res = await fetch('http://localhost:4000/api/upload', { 
+      const res = await fetch('https://ai-resume-node.onrender.com/api/upload', { 
         method: 'POST', 
         body: formData 
       });
@@ -30,7 +29,7 @@ const Upload = ({ setAnalysisData }) => {
           // Adjust 'data.text' based on exactly what your Node.js backend returns
           const extractedText = data.text || data.extractedText || ""; 
 
-          const pyRes = await fetch('http://127.0.0.1:5000/recommend', {
+          const pyRes = await fetch('https://ai-brain-llul.onrender.com/recommend', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ resume_text: extractedText })
