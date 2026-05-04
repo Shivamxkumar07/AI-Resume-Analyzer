@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -7,8 +8,12 @@ import spacy
 # Initialize Flask app
 app = Flask(__name__)
 
-# Enable CORS so your React app (port 5173) can access this API (port 5000)
-CORS(app)
+# --- UPDATED: PRODUCTION CORS CONFIGURATION ---
+# This explicitly allows your live Render frontend to access this ML server
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:5173",
+    "https://ai-resume-analyzer-and-job-recommendation.onrender.com"
+]}})
 
 # Load the small English NLP model
 try:
@@ -58,20 +63,14 @@ def recommend():
         # 3. Calculate Raw Cosine Similarity
         raw_scores = cosine_similarity(all_vectors[0:1], all_vectors[1:]).flatten()
 
-        # --- THE FIX: NORMALIZATION MATH ---
-        # Find the highest raw score to use as our baseline
+        # --- NORMALIZATION MATH ---
         max_raw_score = max(raw_scores) if max(raw_scores) > 0 else 1.0
-        
-        # Scale the best match to roughly 94% (realistic top ATS score)
         scale_factor = 94.0 / (max_raw_score * 100)
 
         # 4. Format the final list
         results = []
         for i, job in enumerate(JOBS):
-            # Apply the scale factor to the raw percentage
             scaled_score = (raw_scores[i] * 100) * scale_factor
-            
-            # Cap the maximum possible score at 98.5%
             final_score = min(scaled_score, 98.5)
 
             results.append({
@@ -88,7 +87,9 @@ def recommend():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# --- START THE SERVER ---
+# --- UPDATED: START THE SERVER FOR RENDER ---
 if __name__ == '__main__':
-    # Running on port 5000
-    app.run(port=5000, debug=True)
+    # Render provides a PORT environment variable. We must use it!
+    # We also set host to '0.0.0.0' to make it accessible to the outside world.
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
