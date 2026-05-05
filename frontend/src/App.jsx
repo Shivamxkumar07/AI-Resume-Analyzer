@@ -1,13 +1,12 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/clerk-react";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { SignedIn, SignedOut, UserButton, useAuth, SignInButton } from "@clerk/clerk-react";
 import { useState } from 'react';
 
-// Import your page components
+// Import your page components (Notice Login is gone!)
 import Home from './pages/Home';
 import Upload from './pages/Upload';
 import Dashboard from './pages/Dashboard';
 import Jobs from './pages/Jobs';
-import Login from './pages/Login';
 
 // Import the Global Footer
 import Footer from './components/Footer.jsx';
@@ -29,9 +28,10 @@ const Navbar = () => (
       </SignedIn>
       
       <SignedOut>
-        <Link to="/login">
+        {/* THE FIX: Replaced the <Link to="/login"> with the Clerk Modal Button */}
+        <SignInButton mode="modal" fallbackRedirectUrl="/upload">
           <button style={navStyles.loginBtn}>Login to Start</button>
-        </Link>
+        </SignInButton>
       </SignedOut>
       
       <SignedIn>
@@ -46,18 +46,19 @@ const Navbar = () => (
 // --- PROTECTED ROUTE WRAPPER ---
 const ProtectedRoute = ({ children }) => {
   const { isLoaded, isSignedIn } = useAuth();
+  
   if (!isLoaded) return <div style={navStyles.loading}>Loading Security...</div>;
-  if (!isSignedIn) return <Navigate to="/login" replace />;
+  
+  // THE FIX: If they aren't logged in, send them back to the Home page 
+  // where they can click the Modal button.
+  if (!isSignedIn) return <Navigate to="/" replace />;
+  
   return children;
 };
 
 // --- APP CONTENT WRAPPER ---
 const AppContent = () => {
-  const location = useLocation();
   const [analysisData, setAnalysisData] = useState(null);
-
-  // Logic to differentiate pages
-  const isLoginPage = location.pathname === '/login';
 
   return (
     <div style={{ 
@@ -65,19 +66,16 @@ const AppContent = () => {
       flexDirection: 'column',
       minHeight: '100vh', 
       width: '100%', 
-      // Switches background based on the current page
-      backgroundColor: isLoginPage ? '#ffffff' : '#020617' 
+      backgroundColor: '#020617' // Unified background
     }}>
       
-      {/* 1. Show Navbar only if NOT on the login page */}
-      {!isLoginPage && <Navbar />}
+      {/* Navbar is now always visible */}
+      <Navbar />
       
-      {/* 2. Main Content expands to push Footer to the bottom */}
       <main style={{ flex: 1 }}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
 
           {/* Protected Routes (Require Login) */}
           <Route path="/upload" element={
@@ -103,7 +101,7 @@ const AppContent = () => {
         </Routes>
       </main>
 
-      {/* 3. Footer rendered on all pages */}
+      {/* Footer rendered on all pages */}
       <Footer />
     </div>
   );
